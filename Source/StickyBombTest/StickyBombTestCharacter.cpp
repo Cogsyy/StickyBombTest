@@ -7,6 +7,7 @@
 #include "Components/CapsuleComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "InteractionComponent.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -35,6 +36,7 @@ AStickyBombTestCharacter::AStickyBombTestCharacter()
 	//Mesh1P->SetRelativeRotation(FRotator(0.9f, -19.19f, 5.2f));
 	Mesh1P->SetRelativeLocation(FVector(-30.f, 0.f, -150.f));
 
+	InteractionComp = CreateDefaultSubobject<UInteractionComponent>("InteractionComponent");
 }
 
 void AStickyBombTestCharacter::BeginPlay()
@@ -69,6 +71,16 @@ void AStickyBombTestCharacter::SetupPlayerInputComponent(class UInputComponent* 
 
 		//Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AStickyBombTestCharacter::Look);
+	}
+
+	PlayerInputComponent->BindAction("PrimaryInteract", IE_Pressed, this, &AStickyBombTestCharacter::PrimaryInteract);
+}
+
+void AStickyBombTestCharacter::PrimaryInteract()
+{
+	if (InteractionComp)
+	{
+		InteractionComp->Interact();
 	}
 }
 

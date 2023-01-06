@@ -13,6 +13,7 @@ class USceneComponent;
 class UCameraComponent;
 class UAnimMontage;
 class USoundBase;
+class UInteractionComponent;
 
 UCLASS(config=Game)
 class AStickyBombTestCharacter : public ACharacter
@@ -71,10 +72,15 @@ protected:
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
 
+	UPROPERTY(VisibleAnywhere)
+	UInteractionComponent* InteractionComp;
+
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 	// End of APawn interface
+
+	void PrimaryInteract();
 
 public:
 	/** Returns Mesh1P subobject **/
