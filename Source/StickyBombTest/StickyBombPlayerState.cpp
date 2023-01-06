@@ -17,3 +17,8 @@ void AStickyBombPlayerState::ChangeAmmo(int DeltaChange)
 	OnAmmoCountChanged.Broadcast(AmmoCurrent);
 	UE_LOG(LogTemp, Log, TEXT("WeaponComp: Ammo is now %i"), AmmoCurrent);
 }
+
+bool AStickyBombPlayerState::HasAmmo()
+{
+	return AmmoCurrent > 0;
+}

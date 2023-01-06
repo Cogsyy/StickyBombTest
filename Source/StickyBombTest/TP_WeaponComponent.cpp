@@ -9,6 +9,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "StickyBombPlayerState.h"
 
 // Sets default values for this component's properties
 UTP_WeaponComponent::UTP_WeaponComponent()
@@ -20,6 +21,18 @@ UTP_WeaponComponent::UTP_WeaponComponent()
 void UTP_WeaponComponent::Fire()
 {
 	if (Character == nullptr || Character->GetController() == nullptr)
+	{
+		return;
+	}
+
+	APlayerState* PlayerState = UGameplayStatics::GetPlayerState(this, 0);
+	AStickyBombPlayerState* StickyBombPlayerState = Cast<AStickyBombPlayerState>(PlayerState);
+
+	if (StickyBombPlayerState->HasAmmo())
+	{
+		StickyBombPlayerState->ChangeAmmo(-1);
+	}
+	else
 	{
 		return;
 	}

@@ -21,6 +21,8 @@ public:
 
 	void ChangeAmmo(int DeltaChange);
 
+	bool HasAmmo();
+
 	UPROPERTY(BlueprintAssignable)
 	FOnAmmoCountChanged OnAmmoCountChanged;
 
