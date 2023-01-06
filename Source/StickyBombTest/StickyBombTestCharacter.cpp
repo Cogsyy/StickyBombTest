@@ -80,7 +80,7 @@ void AStickyBombTestCharacter::PrimaryInteract()
 {
 	if (InteractionComp)
 	{
-		InteractionComp->Interact();
+		InteractionComp->TryInteract();
 	}
 }
 

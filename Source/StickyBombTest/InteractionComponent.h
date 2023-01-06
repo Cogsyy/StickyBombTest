@@ -15,6 +15,28 @@ class STICKYBOMBTEST_API UInteractionComponent : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UInteractionComponent();
-	void Interact();
-		
+	
+	void TryInteract();
+
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+protected:
+	virtual void BeginPlay() override;
+
+	UPROPERTY(EditAnywhere)
+	float MaxInteractionDistance = 400;//Arbitrary good default amount
+	
+private:
+	void TryFindPawnWithInteractable();
+
+	void SetAbleToInteract(AActor* HitActor, APawn* HitPawnWithInteractable);
+
+	void SetInteractionWidgetEnabled(bool Enabled);
+
+	APlayerController* PlayerController;
+	
+	UUserWidget* InteractionWidget;
+	
+	AActor* CachedHitActor;
+	APawn* CachedPawnWithIInteractable;
 };

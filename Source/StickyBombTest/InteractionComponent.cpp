@@ -4,16 +4,29 @@
 #include "InteractionComponent.h"
 
 #include "IInteractable.h"
+#include "StickyBombPlayerController.h"
+#include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
 
 UInteractionComponent::UInteractionComponent()
 {
-	
+	PrimaryComponentTick.bCanEverTick = true;
 }
 
-void UInteractionComponent::Interact()
+void UInteractionComponent::BeginPlay()
 {
-	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+	Super::BeginPlay();
+
+	PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+	AStickyBombPlayerController* StickyBombPlayerController = Cast<AStickyBombPlayerController>(PlayerController);
+
+	InteractionWidget = StickyBombPlayerController->CreateInteractionWidget();
+}
+
+void UInteractionComponent::TryFindPawnWithInteractable()
+{
+	CachedPawnWithIInteractable = nullptr;//Assume null each time
+	CachedHitActor = nullptr;
 	
 	TArray<FHitResult> Hits;
 	float Radius = 30.f;
@@ -34,26 +47,63 @@ void UInteractionComponent::Interact()
 	AActor* MyOwner = GetOwner();
 	CollisionParams.AddIgnoredActor(MyOwner);
 	
-	
 	bool bBlockingHit = GetWorld()->SweepMultiByObjectType(Hits, SweepStart, SweepEnd, FQuat::Identity, ObjectQueryParams, Shape, CollisionParams);
 	FColor LineColor = bBlockingHit ? FColor::Green : FColor::Red;
 	
 	for (FHitResult Hit : Hits)
 	{
-		DrawDebugSphere(GetWorld(), Hit.ImpactPoint, Radius, 32, LineColor, false, 2.0f);
-		
+		//DrawDebugSphere(GetWorld(), Hit.ImpactPoint, Radius, 32, LineColor, false, 2.0f);
+
 		AActor* HitActor = Hit.GetActor();
 		if (HitActor)
 		{
-			if (HitActor->Implements<UIInteractable>())
+			if (HitActor->Implements<UIInteractable>() && Hit.Distance <= MaxInteractionDistance)
 			{
-				APawn* MyPawn = Cast<APawn>(MyOwner);
-			
-				IIInteractable::Execute_Interact(HitActor, MyPawn);
+				SetAbleToInteract(HitActor, Cast<APawn>(MyOwner));
 				break;
 			}
 		}
 	}
+
+	if (!CachedHitActor)
+	{
+		SetInteractionWidgetEnabled(false);
+	}
+}
+
+void UInteractionComponent::SetAbleToInteract(AActor* HitActor, APawn* HitPawnWithInteractable)
+{
+	CachedHitActor = HitActor;
+	CachedPawnWithIInteractable = HitPawnWithInteractable;
+
+	SetInteractionWidgetEnabled(true);
+}
+
+void UInteractionComponent::SetInteractionWidgetEnabled(bool Enabled)
+{
+	if (Enabled)
+	{
+		InteractionWidget->AddToViewport();
+	}
+	else
+	{
+		InteractionWidget->RemoveFromParent();//RemoveFromViewport is deprecated
+	}
+}
+
+void UInteractionComponent::TryInteract()
+{
+	if (CachedPawnWithIInteractable != nullptr && CachedHitActor != nullptr)
+	{
+		IIInteractable::Execute_Interact(CachedHitActor, CachedPawnWithIInteractable);
+	}
+}
+
+void UInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	TryFindPawnWithInteractable();
 }
 
 
