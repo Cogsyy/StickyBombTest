@@ -4,6 +4,7 @@
 #include "StickyBombProjectile.h"
 
 #include "StickyBombPlayerState.h"
+#include "StickyBombTestCharacter.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -38,7 +39,24 @@ AStickyBombProjectile::AStickyBombProjectile()
 
 void AStickyBombProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	ACharacter* Character = Cast<ACharacter>(OtherActor);
 
+	if (Character)//Hit a character
+	{
+		//Spawn a sticky explosive on the character
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		
+		AActor* StickyExplosive = GetWorld()->SpawnActor<AActor>(StickyExplosiveClass, SpawnParams);
+
+		if (ensure(StickyExplosive))
+		{
+			StickyExplosive->AttachToActor(Character, FAttachmentTransformRules::KeepRelativeTransform);
+			StickyExplosive->SetActorLocation(Hit.ImpactPoint);
+		}
+		
+		Destroy();
+	}
 }
 
 void AStickyBombProjectile::OnInteract(APawn* InstigatorPawn)

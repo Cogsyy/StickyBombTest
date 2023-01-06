@@ -7,6 +7,7 @@
 #include "StickyBombPlayerController.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
+#include "Misc/AssertionMacros.h"
 
 UInteractionComponent::UInteractionComponent()
 {
@@ -81,6 +82,17 @@ void UInteractionComponent::SetAbleToInteract(AActor* HitActor, APawn* HitPawnWi
 
 void UInteractionComponent::SetInteractionWidgetEnabled(bool Enabled)
 {
+	if (!IsValid(InteractionWidget))
+	{
+		UE_LOG(LogTemp, Error, TEXT("ERROR: Interaction widget doesn't exist"));
+		return;
+	}
+
+	if (!InteractionWidget || InteractionWidget == nullptr)
+	{
+		return;
+	}
+	
 	if (Enabled)
 	{
 		InteractionWidget->AddToViewport();

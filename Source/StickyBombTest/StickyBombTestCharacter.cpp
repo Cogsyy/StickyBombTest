@@ -37,6 +37,9 @@ AStickyBombTestCharacter::AStickyBombTestCharacter()
 	Mesh1P->SetRelativeLocation(FVector(-30.f, 0.f, -150.f));
 
 	InteractionComp = CreateDefaultSubobject<UInteractionComponent>("InteractionComponent");
+
+	ThirdPersonMesh = CreateDefaultSubobject<USkeletalMeshComponent>("ThirdPersonSkeletalMeshComp");
+	ThirdPersonMesh->SetupAttachment(RootComponent);
 }
 
 void AStickyBombTestCharacter::BeginPlay()

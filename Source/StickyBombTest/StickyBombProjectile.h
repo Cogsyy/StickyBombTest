@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "PickupableActor.h"
 #include "StickyBombTestProjectile.h"
+#include "StickyExplosive.h"
 #include "StickyBombProjectile.generated.h"
 
 /**
@@ -37,4 +38,7 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	UProjectileMovementComponent* ProjectileMovement;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AStickyExplosive> StickyExplosiveClass;
 };

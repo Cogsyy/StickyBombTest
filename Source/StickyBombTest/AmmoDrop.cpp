@@ -30,7 +30,7 @@ void AAmmoDrop::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 {
 	AStickyBombTestCharacter* PlayerCharacter = Cast<AStickyBombTestCharacter>(OtherActor);
 
-	if (ensure(PlayerCharacter))
+	if (PlayerCharacter)
 	{
 		APlayerState* PlayerState = PlayerCharacter->GetPlayerState();
 		AStickyBombPlayerState* StickyBombPlayerState = Cast<AStickyBombPlayerState>(PlayerState);

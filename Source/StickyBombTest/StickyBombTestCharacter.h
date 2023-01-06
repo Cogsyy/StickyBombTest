@@ -47,6 +47,9 @@ public:
 protected:
 	virtual void BeginPlay();
 
+	UPROPERTY(VisibleDefaultsOnly, Category=Mesh)
+	USkeletalMeshComponent* ThirdPersonMesh;
+
 public:
 		
 	/** Look Input Action */
