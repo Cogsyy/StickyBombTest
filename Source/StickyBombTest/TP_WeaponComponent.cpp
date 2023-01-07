@@ -15,6 +15,7 @@
 // Sets default values for this component's properties
 UTP_WeaponComponent::UTP_WeaponComponent()
 {
+	SetIsReplicatedByDefault(true);
 	// Default offset from the character location for projectiles to spawn
 	MuzzleOffset = FVector(100.0f, 0.0f, 10.0f);
 }
@@ -25,9 +26,8 @@ void UTP_WeaponComponent::Fire()
 	{
 		return;
 	}
-
-	APlayerState* PlayerState = UGameplayStatics::GetPlayerState(this, 0);
-	AStickyBombPlayerState* StickyBombPlayerState = Cast<AStickyBombPlayerState>(PlayerState);
+	
+	AStickyBombPlayerState* StickyBombPlayerState = Character->GetController()->GetPlayerState<AStickyBombPlayerState>();
 
 	if (StickyBombPlayerState->HasAmmo())
 	{
@@ -38,6 +38,23 @@ void UTP_WeaponComponent::Fire()
 		return;
 	}
 
+	if (GetOwner()->HasAuthority())
+	{
+		Multicast_Fire();
+	}
+	else
+	{
+		Server_Fire();
+	}
+}
+
+void UTP_WeaponComponent::Server_Fire_Implementation()
+{
+	Multicast_Fire();
+}
+
+void UTP_WeaponComponent::Multicast_Fire_Implementation()
+{
 	// Try and fire a projectile
 	if (ProjectileClass != nullptr)
 	{

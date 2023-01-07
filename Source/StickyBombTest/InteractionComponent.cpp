@@ -11,6 +11,7 @@
 
 UInteractionComponent::UInteractionComponent()
 {
+	SetIsReplicatedByDefault(true);
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
@@ -18,8 +19,12 @@ void UInteractionComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	APlayerController* Controller = UGameplayStatics::GetPlayerController(this, 0);
-	PlayerController = Cast<AStickyBombPlayerController>(Controller);
+	//APlayerController* Controller = UGameplayStatics::GetPlayerController(this, 0);
+	APawn* Owner = Cast<APawn>(GetOwner());
+	if (Owner)
+	{
+		PlayerController = Cast<AStickyBombPlayerController>(Owner->Controller);
+	}
 }
 
 void UInteractionComponent::TryFindPawnWithInteractable()
@@ -47,10 +52,10 @@ void UInteractionComponent::TryFindPawnWithInteractable()
 	CollisionParams.AddIgnoredActor(MyOwner);
 	
 	bool bBlockingHit = GetWorld()->SweepMultiByObjectType(Hits, SweepStart, SweepEnd, FQuat::Identity, ObjectQueryParams, Shape, CollisionParams);
-	FColor LineColor = bBlockingHit ? FColor::Green : FColor::Red;
 	
 	for (FHitResult Hit : Hits)
 	{
+		//FColor LineColor = bBlockingHit ? FColor::Green : FColor::Red;
 		//DrawDebugSphere(GetWorld(), Hit.ImpactPoint, Radius, 32, LineColor, false, 2.0f);
 
 		AActor* HitActor = Hit.GetActor();
@@ -102,7 +107,10 @@ void UInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	TryFindPawnWithInteractable();
+	if (PlayerController)//don't bother looking for interactables if you don't have a controller. If you don't have one you are probably replicated and wouldn't have a HUD
+	{
+		TryFindPawnWithInteractable();
+	}
 }
 
 

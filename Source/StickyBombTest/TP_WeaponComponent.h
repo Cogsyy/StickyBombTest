@@ -14,6 +14,23 @@ class STICKYBOMBTEST_API UTP_WeaponComponent : public USkeletalMeshComponent
 	GENERATED_BODY()
 
 public:
+	/** Sets default values for this component's properties */
+	UTP_WeaponComponent();
+
+	/** Attaches the actor to a FirstPersonCharacter */
+	UFUNCTION(BlueprintCallable, Category="Weapon")
+	void AttachWeapon(AStickyBombTestCharacter* TargetCharacter);
+
+	/** Make the weapon Fire a Projectile */
+	UFUNCTION(BlueprintCallable, Category="Weapon")
+	void Fire();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_Fire();
+
+	UFUNCTION(Server, Reliable)
+	void Server_Fire();
+	
 	/** Projectile class to spawn */
 	UPROPERTY(EditDefaultsOnly, Category=Projectile)
 	TSubclassOf<class AStickyBombProjectile> ProjectileClass;
@@ -37,17 +54,6 @@ public:
 	/** Fire Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	class UInputAction* FireAction;
-
-	/** Sets default values for this component's properties */
-	UTP_WeaponComponent();
-
-	/** Attaches the actor to a FirstPersonCharacter */
-	UFUNCTION(BlueprintCallable, Category="Weapon")
-	void AttachWeapon(AStickyBombTestCharacter* TargetCharacter);
-
-	/** Make the weapon Fire a Projectile */
-	UFUNCTION(BlueprintCallable, Category="Weapon")
-	void Fire();
 
 protected:
 	/** Ends gameplay for this component. */

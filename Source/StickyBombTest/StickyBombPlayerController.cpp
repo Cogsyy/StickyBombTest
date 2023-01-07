@@ -5,10 +5,29 @@
 
 #include "Blueprint/UserWidget.h"
 
+AStickyBombPlayerController::AStickyBombPlayerController()
+{
+
+}
+
+void AStickyBombPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (HasAuthority() == false)//Server can't create widget
+	{
+		UUserWidget* HudWidget = CreateWidget(this, PlayerHudWidget, "PlayerHudWidget");
+		HudWidget->AddToViewport();
+	}
+}
+
 void AStickyBombPlayerController::CreateInteractionWidget()
 {
-	InteractionWidget = CreateWidget(this, InteractionWidgetClass, "InteractionWidget");
-	InteractionWidget->AddToViewport();
+	if (InteractionWidget == nullptr || InteractionWidget && !InteractionWidget->IsInViewport())
+	{
+		InteractionWidget = CreateWidget(this, InteractionWidgetClass, "InteractionWidget");
+		InteractionWidget->AddToViewport();	
+	}
 }
 
 void AStickyBombPlayerController::RemoveInteractionWidget()

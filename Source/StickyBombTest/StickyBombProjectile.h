@@ -69,6 +69,7 @@ protected:
 	UPROPERTY(EditAnywhere)
 	float TimeUntilUnattachedExplosion = 8;
 
+	//UPROPERTY(EditAnywhere, Replicated)
 	UPROPERTY(EditAnywhere)
 	float WarningTimeBeforeExplosionInSeconds = 3;
 

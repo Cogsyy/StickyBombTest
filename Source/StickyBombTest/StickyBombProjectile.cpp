@@ -53,8 +53,8 @@ AStickyBombProjectile::AStickyBombProjectile()
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	FDoRepLifetimeParams SharedParams;
 	SharedParams.bIsPushBased = true;
-	
-	DOREPLIFETIME_WITH_PARAMS_FAST(AStickyBombProjectile, bDoorOpen, SharedParams);
+
+	DOREPLIFETIME_WITH_PARAMS_FAST(AStickyBombProjectile, WarningTimeBeforeExplosionInSeconds, SharedParams);
 }*/
 
 void AStickyBombProjectile::InitializePostSpawn()
