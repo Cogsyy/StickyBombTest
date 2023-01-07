@@ -13,8 +13,8 @@ void AStickyBombPlayerController::CreateInteractionWidget()
 
 void AStickyBombPlayerController::RemoveInteractionWidget()
 {
-	if (InteractionWidget && InteractionWidget->IsInViewport())
+	if (InteractionWidget)
 	{
-		InteractionWidget->RemoveFromParent();//RemoveFromViewport is deprecated
+		InteractionWidget->RemoveFromViewport();
 	}
 }

@@ -15,6 +15,7 @@
 
 AStickyBombTestCharacter::AStickyBombTestCharacter()
 {
+	bReplicates = true;
 	// Character doesnt have a rifle at start
 	bHasRifle = false;
 	

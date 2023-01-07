@@ -8,11 +8,13 @@
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Net/UnrealNetwork.h"
 #include "Particles/ParticleSystemComponent.h"
 
 //Note: Borrowed some of this code from the default projectile, just moved into my own class here
 AStickyBombProjectile::AStickyBombProjectile()
 {
+	bReplicates = true;
 	PrimaryActorTick.bCanEverTick = true;
 	
 	// Use a sphere as a simple collision representation
@@ -46,36 +48,70 @@ AStickyBombProjectile::AStickyBombProjectile()
 	RadialForceComp->SetupAttachment(CollisionComp);
 }
 
+/*void AStickyBombProjectile::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	FDoRepLifetimeParams SharedParams;
+	SharedParams.bIsPushBased = true;
+	
+	DOREPLIFETIME_WITH_PARAMS_FAST(AStickyBombProjectile, bDoorOpen, SharedParams);
+}*/
+
+void AStickyBombProjectile::InitializePostSpawn()
+{
+	return;
+	//Draw a ray from the middle of the hud (where the crosshairs are) until it hits what you're aiming at, and use this to modify the projectile's speed/velocity
+	FVector ViewpointLocation;
+	FRotator ViewpointRotation;
+	GetInstigator()->Controller->GetPlayerViewPoint(ViewpointLocation, ViewpointRotation);
+
+	FHitResult Hit;
+	bool BlockingHit = LineTraceSingleByObjectWhereAiming(Hit, ViewpointLocation, ViewpointRotation);
+	
+	if (BlockingHit)
+	{
+		FVector TossVelocity;
+	
+		UGameplayStatics::SuggestProjectileVelocity(GetWorld(), TossVelocity, ViewpointLocation, Hit.ImpactPoint, 3000.0f);
+
+		ProjectileMovement->InitialSpeed = 3000;
+		TossVelocity.Normalize();
+		ProjectileMovement->SetVelocityInLocalSpace(TossVelocity);
+	}
+	else
+	{
+		ProjectileMovement->InitialSpeed = 3000;
+	}
+}
+
+//Encapsulation of line trace code to simplify my own, as it takes several lines for a simple line trace
+bool AStickyBombProjectile::LineTraceSingleByObjectWhereAiming(FHitResult& OutHit, const FVector ViewpointLocation, const FRotator ViewpointRotation)
+{
+	FCollisionObjectQueryParams CollisionObjectQueryParams;
+
+	FCollisionQueryParams CollisionQueryParams;
+	CollisionQueryParams.AddIgnoredActor(GetInstigator());
+	CollisionQueryParams.AddIgnoredActor(this);
+	
+	const float TraceDistance = 9999;
+	FVector EndTraceLocation = ViewpointLocation + (ViewpointRotation.Vector() * TraceDistance);
+	bool BlockingHit = GetWorld()->LineTraceSingleByObjectType(OutHit, ViewpointLocation, EndTraceLocation, CollisionObjectQueryParams, CollisionQueryParams);
+
+	if (BlockingHit)
+	{
+		FColor LineColor = FColor::Green;
+		DrawDebugLine(GetWorld(), ViewpointLocation, OutHit.ImpactPoint, LineColor, true, 5);
+	}
+
+	return BlockingHit;
+}
+
 void AStickyBombProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 	
 	ExplosionEffectComp->Deactivate();
 	StaticMesh->SetScalarParameterValueOnMaterials(MaterialSpeedParam, 0);//Don't flash
-
-	//Doesn't work
-	/*FVector ViewpointLocation;
-	FRotator ViewpointRotation;
-	GetInstigator()->Controller->GetPlayerViewPoint(ViewpointLocation, ViewpointRotation);
-	
-	FCollisionQueryParams CollisionQueryParams;
-	CollisionQueryParams.AddIgnoredActor(GetOwner());
-
-	FCollisionResponseParams CollisionResponseParams;
-	
-	float TraceDistance = 9999;
-	FVector EndTraceLocation = ViewpointLocation + (ViewpointRotation.Vector() * TraceDistance);
-	FHitResult Hit;
-	bool bBlockingHit = GetWorld()->LineTraceSingleByChannel(Hit, ViewpointLocation, EndTraceLocation, ECC_WorldDynamic, CollisionQueryParams, CollisionResponseParams);
-
-	if (bBlockingHit)
-	{
-		FVector TossVelocity;
-		FVector EndLocation;
-	
-		UGameplayStatics::SuggestProjectileVelocity(GetWorld(), TossVelocity, ViewpointLocation, EndLocation, 1);
-		ProjectileMovement->SetVelocityInLocalSpace(TossVelocity);
-	}*/
 }
 
 void AStickyBombProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)

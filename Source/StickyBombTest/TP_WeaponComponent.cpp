@@ -55,7 +55,8 @@ void UTP_WeaponComponent::Fire()
 			ActorSpawnParams.Instigator = PlayerController->GetPawn();
 	
 			// Spawn the projectile at the muzzle
-			World->SpawnActor<AStickyBombProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+			AStickyBombProjectile* Projectile = World->SpawnActor<AStickyBombProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+			Projectile->InitializePostSpawn();
 		}
 	}
 	

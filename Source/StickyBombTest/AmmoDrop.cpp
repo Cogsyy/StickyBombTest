@@ -11,6 +11,8 @@
 // Sets default values
 AAmmoDrop::AAmmoDrop()
 {
+	bReplicates = true;
+	
 	SphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
 	RootComponent = SphereComp;
 

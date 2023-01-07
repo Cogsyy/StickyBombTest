@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "PickupableActor.h"
 #include "StickyBombTestProjectile.h"
-#include "StickyExplosive.h"
 #include "PhysicsEngine/RadialForceComponent.h"
 #include "StickyBombProjectile.generated.h"
 
@@ -20,6 +19,8 @@ class STICKYBOMBTEST_API AStickyBombProjectile : public APickupableActor
 public:
 	AStickyBombProjectile();
 
+	void InitializePostSpawn();
+
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION()
@@ -31,9 +32,9 @@ public:
 	UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
 
 protected:
-	virtual void OnInteract(APawn* InstigatorPawn) override;
-
 	virtual void BeginPlay();
+	
+	virtual void OnInteract(APawn* InstigatorPawn) override;
 	
 	bool ShouldFlash(bool IsAttached);
 
@@ -82,4 +83,7 @@ protected:
 	bool IsFlashing = false;
 
 	bool IsExploding = false;
+
+private:
+	bool LineTraceSingleByObjectWhereAiming(FHitResult& OutHit, const FVector ViewpointLocation, const FRotator ViewpointRotation);
 };
