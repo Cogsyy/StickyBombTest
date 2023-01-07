@@ -49,6 +49,30 @@ void AStickyBombProjectile::BeginPlay()
 	
 	ExplosionEffectComp->Deactivate();
 	StaticMesh->SetScalarParameterValueOnMaterials(MaterialSpeedParam, 0);//Don't flash
+
+	//Doesn't work
+	/*FVector ViewpointLocation;
+	FRotator ViewpointRotation;
+	GetInstigator()->Controller->GetPlayerViewPoint(ViewpointLocation, ViewpointRotation);
+	
+	FCollisionQueryParams CollisionQueryParams;
+	CollisionQueryParams.AddIgnoredActor(GetOwner());
+
+	FCollisionResponseParams CollisionResponseParams;
+	
+	float TraceDistance = 9999;
+	FVector EndTraceLocation = ViewpointLocation + (ViewpointRotation.Vector() * TraceDistance);
+	FHitResult Hit;
+	bool bBlockingHit = GetWorld()->LineTraceSingleByChannel(Hit, ViewpointLocation, EndTraceLocation, ECC_WorldDynamic, CollisionQueryParams, CollisionResponseParams);
+
+	if (bBlockingHit)
+	{
+		FVector TossVelocity;
+		FVector EndLocation;
+	
+		UGameplayStatics::SuggestProjectileVelocity(GetWorld(), TossVelocity, ViewpointLocation, EndLocation, 1);
+		ProjectileMovement->SetVelocityInLocalSpace(TossVelocity);
+	}*/
 }
 
 void AStickyBombProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
