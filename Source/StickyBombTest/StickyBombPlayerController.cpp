@@ -5,7 +5,16 @@
 
 #include "Blueprint/UserWidget.h"
 
-UUserWidget* AStickyBombPlayerController::CreateInteractionWidget()
+void AStickyBombPlayerController::CreateInteractionWidget()
 {
-	return CreateWidget(this, InteractionWidgetClass, "InteractionWidget");
+	InteractionWidget = CreateWidget(this, InteractionWidgetClass, "InteractionWidget");
+	InteractionWidget->AddToViewport();
+}
+
+void AStickyBombPlayerController::RemoveInteractionWidget()
+{
+	if (InteractionWidget && InteractionWidget->IsInViewport())
+	{
+		InteractionWidget->RemoveFromParent();//RemoveFromViewport is deprecated
+	}
 }

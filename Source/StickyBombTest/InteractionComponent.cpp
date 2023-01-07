@@ -18,10 +18,8 @@ void UInteractionComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	PlayerController = UGameplayStatics::GetPlayerController(this, 0);
-	AStickyBombPlayerController* StickyBombPlayerController = Cast<AStickyBombPlayerController>(PlayerController);
-
-	InteractionWidget = StickyBombPlayerController->CreateInteractionWidget();
+	APlayerController* Controller = UGameplayStatics::GetPlayerController(this, 0);
+	PlayerController = Cast<AStickyBombPlayerController>(Controller);
 }
 
 void UInteractionComponent::TryFindPawnWithInteractable()
@@ -82,27 +80,13 @@ void UInteractionComponent::SetAbleToInteract(AActor* HitActor, APawn* HitPawnWi
 
 void UInteractionComponent::SetInteractionWidgetEnabled(bool Enabled)
 {
-	if (!IsValid(InteractionWidget))
-	{
-		UE_LOG(LogTemp, Error, TEXT("ERROR: Interaction widget doesn't exist"));
-		return;
-	}
-
-	if (!InteractionWidget || InteractionWidget == nullptr)
-	{
-		return;
-	}
-	
 	if (Enabled)
 	{
-		InteractionWidget->AddToViewport();
+		PlayerController->CreateInteractionWidget();
 	}
 	else
 	{
-		if (InteractionWidget->IsInViewport())
-		{
-			InteractionWidget->RemoveFromParent();//RemoveFromViewport is deprecated
-		}
+		PlayerController->RemoveInteractionWidget();
 	}
 }
 

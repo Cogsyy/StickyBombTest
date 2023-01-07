@@ -17,10 +17,13 @@ class STICKYBOMBTEST_API AStickyBombPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
-	UUserWidget* CreateInteractionWidget();
+	void CreateInteractionWidget();
+	void RemoveInteractionWidget();
 
 protected:
 	
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UUserWidget> InteractionWidgetClass;
+
+	UUserWidget* InteractionWidget;
 };

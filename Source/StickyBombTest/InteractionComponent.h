@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "InteractionComponent.generated.h"
 
+class AStickyBombPlayerController;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class STICKYBOMBTEST_API UInteractionComponent : public UActorComponent
@@ -33,9 +34,7 @@ private:
 
 	void SetInteractionWidgetEnabled(bool Enabled);
 
-	APlayerController* PlayerController;
-	
-	UUserWidget* InteractionWidget;
+	AStickyBombPlayerController* PlayerController;
 	
 	AActor* CachedHitActor;
 	APawn* CachedPawnWithIInteractable;
