@@ -63,7 +63,8 @@ void AStickyBombProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherAct
 	ACharacter* Character = Cast<ACharacter>(OtherActor);
 	if (Character)//Hit a character
 	{
-		//GetRootComponent()->SetSimu
+		ProjectileMovement->StopMovementImmediately();
+		StaticMesh->SetSimulatePhysics(false);
 		
 		AttachToActor(Character, FAttachmentTransformRules::KeepRelativeTransform);
 		SetActorLocation(Hit.ImpactPoint);
