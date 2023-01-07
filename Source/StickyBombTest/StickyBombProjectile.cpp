@@ -59,7 +59,7 @@ AStickyBombProjectile::AStickyBombProjectile()
 
 void AStickyBombProjectile::InitializePostSpawn()
 {
-	return;
+	//return;
 	//Draw a ray from the middle of the hud (where the crosshairs are) until it hits what you're aiming at, and use this to modify the projectile's speed/velocity
 	FVector ViewpointLocation;
 	FRotator ViewpointRotation;
@@ -72,11 +72,12 @@ void AStickyBombProjectile::InitializePostSpawn()
 	{
 		FVector TossVelocity;
 	
-		UGameplayStatics::SuggestProjectileVelocity(GetWorld(), TossVelocity, ViewpointLocation, Hit.ImpactPoint, 3000.0f);
+		bool success = UGameplayStatics::SuggestProjectileVelocity(GetWorld(), TossVelocity, ViewpointLocation, Hit.ImpactPoint, ProjectileMovement->InitialSpeed, false, 10.0f, 0.0f, ESuggestProjVelocityTraceOption::DoNotTrace);
 
-		ProjectileMovement->InitialSpeed = 3000;
-		TossVelocity.Normalize();
-		ProjectileMovement->SetVelocityInLocalSpace(TossVelocity);
+		if (success)
+		{
+			ProjectileMovement->Velocity = TossVelocity;
+		}
 	}
 	else
 	{
