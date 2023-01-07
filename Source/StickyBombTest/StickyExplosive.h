@@ -15,6 +15,9 @@ public:
 	// Sets default values for this actor's properties
 	AStickyExplosive();
 
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -22,8 +25,16 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	UStaticMeshComponent* StaticMeshComp;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	UPROPERTY(EditAnywhere)
+	float TimeUntilAttachedExplosion = 4;
 
+	UPROPERTY(EditAnywhere)
+	float TimeUntilUnattachedExplosion = 8;
+
+	UPROPERTY(EditAnywhere)
+	float WarningTimeBeforeExplosionInSeconds = 3;
+	
+	float ExplodeTimer = 0;
+
+	bool IsAttached = false;
 };

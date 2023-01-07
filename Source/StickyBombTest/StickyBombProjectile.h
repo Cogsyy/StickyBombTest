@@ -19,6 +19,8 @@ class STICKYBOMBTEST_API AStickyBombProjectile : public APickupableActor
 public:
 	AStickyBombProjectile();
 
+	virtual void Tick(float DeltaTime) override;
+
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
@@ -29,6 +31,14 @@ public:
 
 protected:
 	virtual void OnInteract(APawn* InstigatorPawn) override;
+
+	virtual void BeginPlay();
+	
+	bool ShouldFlash(bool IsAttached);
+
+	bool ShouldExplode(bool IsAttached);
+
+	void FlashTick(bool IsAttached);
 	
 	UPROPERTY(EditDefaultsOnly)
 	UStaticMeshComponent* StaticMesh;
@@ -40,5 +50,27 @@ protected:
 	UProjectileMovementComponent* ProjectileMovement;
 
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<AStickyExplosive> StickyExplosiveClass;
+	UParticleSystemComponent* ExplosionEffectComp;
+
+	UPROPERTY(EditAnywhere)
+	FName MaterialParamName;
+	
+	UPROPERTY(EditAnywhere)
+	float TimeUntilAttachedExplosion = 4;
+
+	UPROPERTY(EditAnywhere)
+	float TimeUntilUnattachedExplosion = 8;
+
+	UPROPERTY(EditAnywhere)
+	float WarningTimeBeforeExplosionInSeconds = 3;
+	
+	float ExplodeTimer = 0;
+
+	bool HitSomething = false;
+
+	bool AttachedToActor = false;
+
+	bool IsFlashing = false;
+
+	bool IsExploding = false;
 };

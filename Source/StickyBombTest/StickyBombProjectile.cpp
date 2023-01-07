@@ -8,10 +8,13 @@
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystemComponent.h"
 
 //Note: Borrowed some of this code from the default projectile, just moved into my own class here
 AStickyBombProjectile::AStickyBombProjectile()
 {
+	PrimaryActorTick.bCanEverTick = true;
+	
 	// Use a sphere as a simple collision representation
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
 	CollisionComp->InitSphereRadius(5.0f);
@@ -35,27 +38,36 @@ AStickyBombProjectile::AStickyBombProjectile()
 	ProjectileMovement->MaxSpeed = 3000.f;
 	ProjectileMovement->bRotationFollowsVelocity = true;
 	ProjectileMovement->bShouldBounce = true;
+
+	ExplosionEffectComp = CreateDefaultSubobject<UParticleSystemComponent>("ExplosionEffectComp");
+	ExplosionEffectComp->SetupAttachment(CollisionComp);
+}
+
+void AStickyBombProjectile::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	ExplosionEffectComp->Deactivate();
+	StaticMesh->SetScalarParameterValueOnMaterials(MaterialParamName, 0);//Don't flash
 }
 
 void AStickyBombProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	ACharacter* Character = Cast<ACharacter>(OtherActor);
+	if (HitSomething)//Only evaluate this on first hit
+	{
+		return;
+	}
 
+	HitSomething = true;
+
+	ACharacter* Character = Cast<ACharacter>(OtherActor);
 	if (Character)//Hit a character
 	{
-		//Spawn a sticky explosive on the character
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		//GetRootComponent()->SetSimu
 		
-		AActor* StickyExplosive = GetWorld()->SpawnActor<AActor>(StickyExplosiveClass, SpawnParams);
-
-		if (ensure(StickyExplosive))
-		{
-			StickyExplosive->AttachToActor(Character, FAttachmentTransformRules::KeepRelativeTransform);
-			StickyExplosive->SetActorLocation(Hit.ImpactPoint);
-		}
-		
-		Destroy();
+		AttachToActor(Character, FAttachmentTransformRules::KeepRelativeTransform);
+		SetActorLocation(Hit.ImpactPoint);
+		AttachedToActor = true;
 	}
 }
 
@@ -69,4 +81,56 @@ void AStickyBombProjectile::OnInteract(APawn* InstigatorPawn)
 	StickyBombPlayerState->ChangeAmmo(1);
 
 	Destroy();
+}
+
+bool AStickyBombProjectile::ShouldFlash(bool IsAttached)
+{
+	float TimeUntilExplosion = IsAttached ? TimeUntilAttachedExplosion : TimeUntilUnattachedExplosion;
+	return ExplodeTimer > TimeUntilExplosion - WarningTimeBeforeExplosionInSeconds;
+}
+
+bool AStickyBombProjectile::ShouldExplode(bool IsAttached)
+{
+	float TimeUntilExplosion = IsAttached ? TimeUntilAttachedExplosion : TimeUntilUnattachedExplosion;
+	return !IsExploding && ExplodeTimer > TimeUntilExplosion;
+}
+
+void AStickyBombProjectile::FlashTick(bool IsAttached)
+{
+	IsFlashing = true;
+
+	float TimeUntilExplosion = IsAttached ? TimeUntilAttachedExplosion : TimeUntilUnattachedExplosion;
+	float PercentOfTimeUntilExplosion = (ExplodeTimer - WarningTimeBeforeExplosionInSeconds) / TimeUntilExplosion;
+	if (PercentOfTimeUntilExplosion > 1)
+	{
+		PercentOfTimeUntilExplosion = 1;
+	}
+	
+	float MaxSpeed = 5;
+	float Speed = MaxSpeed * PercentOfTimeUntilExplosion;
+	StaticMesh->SetScalarParameterValueOnMaterials(MaterialParamName, Speed);
+}
+
+void AStickyBombProjectile::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (HitSomething)
+	{
+		ExplodeTimer += GetWorld()->DeltaTimeSeconds;
+	}
+
+	if (ShouldFlash(AttachedToActor))
+	{
+		FlashTick(AttachedToActor);
+	}
+
+	if (ShouldExplode(AttachedToActor))
+	{
+		IsExploding = true;
+		ExplosionEffectComp->Activate();
+		StaticMesh->SetVisibility(false);
+		
+		SetLifeSpan(1.0f);
+	}
 }

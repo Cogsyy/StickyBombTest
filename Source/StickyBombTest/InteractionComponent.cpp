@@ -99,7 +99,10 @@ void UInteractionComponent::SetInteractionWidgetEnabled(bool Enabled)
 	}
 	else
 	{
-		InteractionWidget->RemoveFromParent();//RemoveFromViewport is deprecated
+		if (InteractionWidget->IsInViewport())
+		{
+			InteractionWidget->RemoveFromParent();//RemoveFromViewport is deprecated
+		}
 	}
 }
 
