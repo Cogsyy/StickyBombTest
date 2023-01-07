@@ -6,6 +6,7 @@
 #include "PickupableActor.h"
 #include "StickyBombTestProjectile.h"
 #include "StickyExplosive.h"
+#include "PhysicsEngine/RadialForceComponent.h"
 #include "StickyBombProjectile.generated.h"
 
 /**
@@ -51,6 +52,9 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	UParticleSystemComponent* ExplosionEffectComp;
+
+	UPROPERTY(EditAnywhere)
+	URadialForceComponent* RadialForceComp;
 
 	UPROPERTY(EditAnywhere)
 	FName MaterialSpeedParam;

@@ -41,6 +41,9 @@ AStickyBombProjectile::AStickyBombProjectile()
 
 	ExplosionEffectComp = CreateDefaultSubobject<UParticleSystemComponent>("ExplosionEffectComp");
 	ExplosionEffectComp->SetupAttachment(CollisionComp);
+
+	RadialForceComp = CreateDefaultSubobject<URadialForceComponent>("RadialForceComp");
+	RadialForceComp->SetupAttachment(CollisionComp);
 }
 
 void AStickyBombProjectile::BeginPlay()
@@ -158,6 +161,8 @@ void AStickyBombProjectile::Tick(float DeltaTime)
 		IsExploding = true;
 		ExplosionEffectComp->Activate();
 		StaticMesh->SetVisibility(false);
+
+		RadialForceComp->FireImpulse();
 		
 		SetLifeSpan(1.0f);
 	}
