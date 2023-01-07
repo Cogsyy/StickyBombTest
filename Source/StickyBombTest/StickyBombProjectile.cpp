@@ -48,7 +48,7 @@ void AStickyBombProjectile::BeginPlay()
 	Super::BeginPlay();
 	
 	ExplosionEffectComp->Deactivate();
-	StaticMesh->SetScalarParameterValueOnMaterials(MaterialParamName, 0);//Don't flash
+	StaticMesh->SetScalarParameterValueOnMaterials(MaterialSpeedParam, 0);//Don't flash
 }
 
 void AStickyBombProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
@@ -108,7 +108,10 @@ void AStickyBombProjectile::FlashTick(bool IsAttached)
 	
 	float MaxSpeed = 5;
 	float Speed = MaxSpeed * PercentOfTimeUntilExplosion;
-	StaticMesh->SetScalarParameterValueOnMaterials(MaterialParamName, Speed);
+	
+	StaticMesh->SetScalarParameterValueOnMaterials(MaterialSpeedParam, Speed);
+	fDeltaTime += GetWorld()->GetDeltaSeconds();
+	StaticMesh->SetScalarParameterValueOnMaterials(MaterialDeltaTimeParam, fDeltaTime);
 }
 
 void AStickyBombProjectile::Tick(float DeltaTime)

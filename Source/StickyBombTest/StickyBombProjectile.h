@@ -53,7 +53,10 @@ protected:
 	UParticleSystemComponent* ExplosionEffectComp;
 
 	UPROPERTY(EditAnywhere)
-	FName MaterialParamName;
+	FName MaterialSpeedParam;
+
+	UPROPERTY(EditAnywhere)
+	FName MaterialDeltaTimeParam;
 	
 	UPROPERTY(EditAnywhere)
 	float TimeUntilAttachedExplosion = 4;
@@ -63,6 +66,8 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	float WarningTimeBeforeExplosionInSeconds = 3;
+
+	float fDeltaTime = 0;
 	
 	float ExplodeTimer = 0;
 
