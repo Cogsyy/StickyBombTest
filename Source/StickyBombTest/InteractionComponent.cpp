@@ -18,8 +18,7 @@ UInteractionComponent::UInteractionComponent()
 void UInteractionComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	//APlayerController* Controller = UGameplayStatics::GetPlayerController(this, 0);
+	
 	APawn* Owner = Cast<APawn>(GetOwner());
 	if (Owner)
 	{
