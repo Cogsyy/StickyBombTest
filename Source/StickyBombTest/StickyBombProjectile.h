@@ -19,7 +19,7 @@ class STICKYBOMBTEST_API AStickyBombProjectile : public APickupableActor
 public:
 	AStickyBombProjectile();
 
-	void InitializePostSpawn();
+	void InitializePostSpawn(FVector ViewpointLocation, FRotator ViewpointRotation);
 
 	virtual void Tick(float DeltaTime) override;
 

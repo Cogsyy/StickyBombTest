@@ -57,14 +57,8 @@ AStickyBombProjectile::AStickyBombProjectile()
 	DOREPLIFETIME_WITH_PARAMS_FAST(AStickyBombProjectile, WarningTimeBeforeExplosionInSeconds, SharedParams);
 }*/
 
-void AStickyBombProjectile::InitializePostSpawn()
+void AStickyBombProjectile::InitializePostSpawn(FVector ViewpointLocation, FRotator ViewpointRotation)
 {
-	//return;
-	//Draw a ray from the middle of the hud (where the crosshairs are) until it hits what you're aiming at, and use this to modify the projectile's speed/velocity
-	FVector ViewpointLocation;
-	FRotator ViewpointRotation;
-	GetInstigator()->Controller->GetPlayerViewPoint(ViewpointLocation, ViewpointRotation);
-
 	FHitResult Hit;
 	bool BlockingHit = LineTraceSingleByObjectWhereAiming(Hit, ViewpointLocation, ViewpointRotation);
 	

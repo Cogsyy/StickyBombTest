@@ -26,7 +26,7 @@ public:
 	void Fire();
 
 	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_Fire();
+	void Multicast_Fire(FVector SpawnLocation, FRotator SpawnRotation, FVector ViewpointLocation, FRotator ViewpointRotation, APawn* Instigator);
 
 	UFUNCTION(Server, Reliable)
 	void Server_Fire();
@@ -63,4 +63,6 @@ protected:
 private:
 	/** The Character holding this weapon*/
 	AStickyBombTestCharacter* Character;
+
+	void CallMulticastFireWithParams(/*APlayerController* PlayerController*/);
 };

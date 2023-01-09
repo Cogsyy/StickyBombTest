@@ -40,7 +40,7 @@ void UTP_WeaponComponent::Fire()
 
 	if (GetOwner()->HasAuthority())
 	{
-		Multicast_Fire();
+		CallMulticastFireWithParams();
 	}
 	else
 	{
@@ -50,10 +50,27 @@ void UTP_WeaponComponent::Fire()
 
 void UTP_WeaponComponent::Server_Fire_Implementation()
 {
-	Multicast_Fire();
+	CallMulticastFireWithParams();
 }
 
-void UTP_WeaponComponent::Multicast_Fire_Implementation()
+void UTP_WeaponComponent::CallMulticastFireWithParams()
+{
+	APlayerController* PlayerController = Cast<APlayerController>(Character->GetController());
+	APawn* Instigator = PlayerController->GetPawn();
+	const FRotator SpawnRotation = PlayerController->PlayerCameraManager->GetCameraRotation();
+	// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
+	const FVector SpawnLocation = GetOwner()->GetActorLocation() + SpawnRotation.RotateVector(MuzzleOffset);
+
+	//For drawing rays later.
+	//Draw a ray from the middle of the hud (where the crosshairs are) until it hits what you're aiming at, and use this to modify the projectile's speed/velocity
+	FVector ViewpointLocation;
+	FRotator ViewpointRotation;
+	Instigator->Controller->GetPlayerViewPoint(ViewpointLocation, ViewpointRotation);
+	
+	Multicast_Fire(SpawnLocation, SpawnRotation, ViewpointLocation, ViewpointRotation, Instigator);
+}
+
+void UTP_WeaponComponent::Multicast_Fire_Implementation(FVector SpawnLocation, FRotator SpawnRotation, FVector ViewpointLocation, FRotator ViewpointRotation, APawn* Instigator)
 {
 	// Try and fire a projectile
 	if (ProjectileClass != nullptr)
@@ -61,19 +78,14 @@ void UTP_WeaponComponent::Multicast_Fire_Implementation()
 		UWorld* const World = GetWorld();
 		if (World != nullptr)
 		{
-			APlayerController* PlayerController = Cast<APlayerController>(Character->GetController());
-			const FRotator SpawnRotation = PlayerController->PlayerCameraManager->GetCameraRotation();
-			// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
-			const FVector SpawnLocation = GetOwner()->GetActorLocation() + SpawnRotation.RotateVector(MuzzleOffset);
-	
 			//Set Spawn Collision Handling Override
 			FActorSpawnParameters ActorSpawnParams;
 			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
-			ActorSpawnParams.Instigator = PlayerController->GetPawn();
+			ActorSpawnParams.Instigator = Instigator;
 	
 			// Spawn the projectile at the muzzle
 			AStickyBombProjectile* Projectile = World->SpawnActor<AStickyBombProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
-			Projectile->InitializePostSpawn();
+			Projectile->InitializePostSpawn(ViewpointLocation, ViewpointRotation);
 		}
 	}
 	
@@ -102,7 +114,10 @@ void UTP_WeaponComponent::AttachWeapon(AStickyBombTestCharacter* TargetCharacter
 	{
 		return;
 	}
-
+	
+	//APlayerController* MyPlayerController = UGameplayStatics::GetPlayerController(this, 0);
+	GetOwner()->SetOwner(TargetCharacter);
+	
 	// Attach the weapon to the First Person Character
 	FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, true);
 	AttachToComponent(Character->GetMesh1P(), AttachmentRules, FName(TEXT("GripPoint")));
