@@ -38,18 +38,24 @@ void UTP_WeaponComponent::Fire()
 		return;
 	}
 
+	//GetNetMode() == NM_ListenServer;
+	
 	if (GetOwner()->HasAuthority())
 	{
+		UE_LOG(LogTemp, Log, TEXT("I am the server. invoking a multicast"));
 		CallMulticastFireWithParams();
 	}
 	else
 	{
+		//We're a client, tell the server that i want to shoot
+		UE_LOG(LogTemp, Log, TEXT("I am a client. Asking the server to invoke a multicast"));
 		Server_Fire();
 	}
 }
 
 void UTP_WeaponComponent::Server_Fire_Implementation()
 {
+	UE_LOG(LogTemp, Log, TEXT("I am the server. A client has asked me to run a multicast. Running the multicast now."));
 	CallMulticastFireWithParams();
 }
 
@@ -72,6 +78,27 @@ void UTP_WeaponComponent::CallMulticastFireWithParams()
 
 void UTP_WeaponComponent::Multicast_Fire_Implementation(FVector SpawnLocation, FRotator SpawnRotation, FVector ViewpointLocation, FRotator ViewpointRotation, APawn* Instigator)
 {
+	ENetMode NetMode = GetNetMode();
+	FString NetModeAsString;
+	if (NetMode == NM_Client)
+	{
+		NetModeAsString = "Client";
+	}
+	else if (NetMode == NM_ListenServer)
+	{
+		NetModeAsString = "Listen Server";
+	}
+	else if (NetMode == NM_DedicatedServer)
+	{
+		NetModeAsString = "Dedicated Server";
+	}
+	else if (NetMode == NM_Standalone)
+	{
+		NetModeAsString = "Standalone";
+	}
+		
+	UE_LOG(LogTemp, Log, TEXT("Multicast_Fire_Implementation: I am %s"), *NetModeAsString);
+	
 	// Try and fire a projectile
 	if (ProjectileClass != nullptr)
 	{
