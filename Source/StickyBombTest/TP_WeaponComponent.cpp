@@ -42,24 +42,32 @@ void UTP_WeaponComponent::Fire()
 	
 	if (GetOwner()->HasAuthority())
 	{
-		UE_LOG(LogTemp, Log, TEXT("I am the server. invoking a multicast"));
-		CallMulticastFireWithParams();
+		UE_LOG(LogTemp, Log, TEXT("I am the server. Spawning a projectile"));
+		SpawnAndFireProjectile();
+
+		if (GetNetMode() != NM_DedicatedServer)
+		{
+			PlayFireSoundAndAnimation();
+		}
 	}
 	else
 	{
 		//We're a client, tell the server that i want to shoot
-		UE_LOG(LogTemp, Log, TEXT("I am a client. Asking the server to invoke a multicast"));
+		UE_LOG(LogTemp, Log, TEXT("I am a client. Asking the server to invoke SpawnAndFireProjectile"));
 		Server_Fire();
+
+		PlayFireSoundAndAnimation();
 	}
 }
 
 void UTP_WeaponComponent::Server_Fire_Implementation()
 {
-	UE_LOG(LogTemp, Log, TEXT("I am the server. A client has asked me to run a multicast. Running the multicast now."));
-	CallMulticastFireWithParams();
+	UE_LOG(LogTemp, Log, TEXT("I am the server. A client has asked me to run SpawnAndFireProjectile. Running the SpawnAndFireProjectile now."));
+
+	SpawnAndFireProjectile();
 }
 
-void UTP_WeaponComponent::CallMulticastFireWithParams()
+void UTP_WeaponComponent::SpawnAndFireProjectile() const
 {
 	APlayerController* PlayerController = Cast<APlayerController>(Character->GetController());
 	APawn* Instigator = PlayerController->GetPawn();
@@ -72,32 +80,6 @@ void UTP_WeaponComponent::CallMulticastFireWithParams()
 	FVector ViewpointLocation;
 	FRotator ViewpointRotation;
 	Instigator->Controller->GetPlayerViewPoint(ViewpointLocation, ViewpointRotation);
-	
-	Multicast_Fire(SpawnLocation, SpawnRotation, ViewpointLocation, ViewpointRotation, Instigator);
-}
-
-void UTP_WeaponComponent::Multicast_Fire_Implementation(FVector SpawnLocation, FRotator SpawnRotation, FVector ViewpointLocation, FRotator ViewpointRotation, APawn* Instigator)
-{
-	ENetMode NetMode = GetNetMode();
-	FString NetModeAsString;
-	if (NetMode == NM_Client)
-	{
-		NetModeAsString = "Client";
-	}
-	else if (NetMode == NM_ListenServer)
-	{
-		NetModeAsString = "Listen Server";
-	}
-	else if (NetMode == NM_DedicatedServer)
-	{
-		NetModeAsString = "Dedicated Server";
-	}
-	else if (NetMode == NM_Standalone)
-	{
-		NetModeAsString = "Standalone";
-	}
-		
-	UE_LOG(LogTemp, Log, TEXT("Multicast_Fire_Implementation: I am %s"), *NetModeAsString);
 	
 	// Try and fire a projectile
 	if (ProjectileClass != nullptr)
@@ -115,7 +97,10 @@ void UTP_WeaponComponent::Multicast_Fire_Implementation(FVector SpawnLocation, F
 			Projectile->InitializePostSpawn(ViewpointLocation, ViewpointRotation);
 		}
 	}
-	
+}
+
+void UTP_WeaponComponent::PlayFireSoundAndAnimation()
+{
 	// Try and play the sound if specified
 	if (FireSound != nullptr)
 	{

@@ -54,7 +54,7 @@ AStickyBombProjectile::AStickyBombProjectile()
 	FDoRepLifetimeParams SharedParams;
 	SharedParams.bIsPushBased = true;
 
-	DOREPLIFETIME_WITH_PARAMS_FAST(AStickyBombProjectile, WarningTimeBeforeExplosionInSeconds, SharedParams);
+	DOREPLIFETIME_WITH_PARAMS_FAST(AStickyBombProjectile, bReplicatedProp, SharedParams);
 }*/
 
 void AStickyBombProjectile::InitializePostSpawn(FVector ViewpointLocation, FRotator ViewpointRotation)
@@ -134,11 +134,29 @@ void AStickyBombProjectile::OnInteract(APawn* InstigatorPawn)
 {
 	Super::OnInteract(InstigatorPawn);
 
-	APlayerState* PlayerState = UGameplayStatics::GetPlayerState(this, 0);
+	APlayerState* PlayerState = InstigatorPawn->GetPlayerState<APlayerState>();
 	AStickyBombPlayerState* StickyBombPlayerState = Cast<AStickyBombPlayerState>(PlayerState);
 
 	StickyBombPlayerState->ChangeAmmo(1);
+	
+	if (HasAuthority())
+	{
+		Multicast_DestroySelf();
+	}
+	else
+	{
+		Server_DestroySelf();
+	}
+}
 
+void AStickyBombProjectile::Server_DestroySelf_Implementation()
+{
+	Multicast_DestroySelf();
+}
+
+void AStickyBombProjectile::Multicast_DestroySelf_Implementation()
+{
+	UE_LOG(LogTemp, Log, TEXT("Multicast_DestroySelf_Implementation"));
 	Destroy();
 }
 
