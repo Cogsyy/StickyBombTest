@@ -6,7 +6,7 @@
 #include "GameFramework/PlayerState.h"
 #include "StickyBombPlayerState.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAmmoCountChanged, float, NewAmmo);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAmmoCountChanged, int, NewAmmo);
 
 /**
  * 

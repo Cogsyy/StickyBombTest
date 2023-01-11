@@ -20,7 +20,7 @@ void UInteractionComponent::BeginPlay()
 	Super::BeginPlay();
 	
 	APawn* Owner = Cast<APawn>(GetOwner());
-	if (Owner)
+	if (Owner != nullptr && Owner->Controller != nullptr)
 	{
 		PlayerController = Cast<AStickyBombPlayerController>(Owner->Controller);
 	}
@@ -37,10 +37,10 @@ void UInteractionComponent::TryFindPawnWithInteractable()
 	Shape.SetSphere(30.0f);
 
 	FVector SweepStart;
-	FVector SweepEnd;
 	FRotator ViewPointRotation;
 	PlayerController->GetPlayerViewPoint(SweepStart, ViewPointRotation);
 
+	FVector SweepEnd;
 	SweepEnd = SweepStart + (ViewPointRotation.Vector() * 1000);
 	
 	FCollisionObjectQueryParams ObjectQueryParams;
@@ -84,14 +84,7 @@ void UInteractionComponent::SetAbleToInteract(AActor* HitActor, APawn* HitPawnWi
 
 void UInteractionComponent::SetInteractionWidgetEnabled(bool Enabled)
 {
-	if (Enabled)
-	{
-		PlayerController->CreateInteractionWidget();
-	}
-	else
-	{
-		PlayerController->RemoveInteractionWidget();
-	}
+	PlayerController->SetInteractionWidgetEnabled(Enabled);
 }
 
 void UInteractionComponent::TryInteract()

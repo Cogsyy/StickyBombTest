@@ -21,19 +21,28 @@ void AStickyBombPlayerController::BeginPlay()
 	}
 }
 
-void AStickyBombPlayerController::CreateInteractionWidget()
+void AStickyBombPlayerController::SetInteractionWidgetEnabled(bool Enabled)
 {
-	if (InteractionWidget == nullptr || InteractionWidget && !InteractionWidget->IsInViewport())
+	if (!InteractionWidget)
 	{
 		InteractionWidget = CreateWidget(this, InteractionWidgetClass, "InteractionWidget");
-		InteractionWidget->AddToViewport();	
+		InteractionWidget->AddToViewport();
+	}
+	
+	if (Enabled)
+	{
+		InteractionWidget->SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		InteractionWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
 
-void AStickyBombPlayerController::RemoveInteractionWidget()
+/*void AStickyBombPlayerController::RemoveInteractionWidget()
 {
 	if (InteractionWidget)
 	{
-		InteractionWidget->RemoveFromViewport();
+		InteractionWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
-}
+}*/

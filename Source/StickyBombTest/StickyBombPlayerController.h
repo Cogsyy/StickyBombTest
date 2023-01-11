@@ -19,8 +19,8 @@ class STICKYBOMBTEST_API AStickyBombPlayerController : public APlayerController
 public:
 	AStickyBombPlayerController();
 	
-	void CreateInteractionWidget();
-	void RemoveInteractionWidget();
+	void SetInteractionWidgetEnabled(bool Enabled);
+	//void RemoveInteractionWidget();
 
 protected:
 	virtual void BeginPlay() override;

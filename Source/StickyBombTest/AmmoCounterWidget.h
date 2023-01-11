@@ -5,7 +5,10 @@
 #include "CoreMinimal.h"
 #include "StickyBombPlayerController.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/TextBlock.h"
 #include "AmmoCounterWidget.generated.h"
+
+
 
 /**
  * 
@@ -17,5 +20,10 @@ class STICKYBOMBTEST_API UAmmoCounterWidget : public UUserWidget
 
 public:
 	virtual void NativeConstruct() override;
-	
+
+	UFUNCTION()
+	void OnAmmoCountChanged(int NewAmmo);
+
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	UTextBlock* AmmoCounterValueLabel;
 };
