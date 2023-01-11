@@ -25,6 +25,11 @@ protected:
 	virtual void OnRep_PlayerState() override;
 	
 	virtual void BeginPlay() override;
+
+	void CreateHudWidget();
+
+	//UFUNCTION(NetMulticast, Reliable)
+	//void Multicast_DestroySelf();
 	
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UUserWidget> PlayerHudWidget;

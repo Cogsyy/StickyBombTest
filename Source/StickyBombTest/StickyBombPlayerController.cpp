@@ -13,12 +13,10 @@ AStickyBombPlayerController::AStickyBombPlayerController()
 void AStickyBombPlayerController::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
-
+	
 	if (HasAuthority() == false)//Server can't create widget
 	{
-		UE_LOG(LogTemp, Log, TEXT("CreateWidget"));
-		UUserWidget* HudWidget = CreateWidget(this, PlayerHudWidget, "PlayerHudWidget");
-		HudWidget->AddToViewport();
+		CreateHudWidget();
 	}
 }
 
@@ -26,7 +24,16 @@ void AStickyBombPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	
+	if (IsLocalController())
+	{
+		CreateHudWidget();
+	}
+}
+
+void AStickyBombPlayerController::CreateHudWidget()
+{
+	UUserWidget* HudWidget = CreateWidget(this, PlayerHudWidget, "PlayerHudWidget");
+	HudWidget->AddToViewport();
 }
 
 void AStickyBombPlayerController::SetInteractionWidgetEnabled(bool Enabled)
