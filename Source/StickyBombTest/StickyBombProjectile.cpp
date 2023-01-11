@@ -141,7 +141,7 @@ void AStickyBombProjectile::OnInteract(APawn* InstigatorPawn)
 	
 	if (HasAuthority())
 	{
-		Multicast_DestroySelf();
+		Destroy();
 	}
 	else
 	{
@@ -151,12 +151,6 @@ void AStickyBombProjectile::OnInteract(APawn* InstigatorPawn)
 
 void AStickyBombProjectile::Server_DestroySelf_Implementation()
 {
-	Multicast_DestroySelf();
-}
-
-void AStickyBombProjectile::Multicast_DestroySelf_Implementation()
-{
-	UE_LOG(LogTemp, Log, TEXT("Multicast_DestroySelf_Implementation"));
 	Destroy();
 }
 

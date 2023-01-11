@@ -44,9 +44,6 @@ protected:
 
 	UFUNCTION(Server, Reliable)
 	void Server_DestroySelf();
-
-	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_DestroySelf();
 	
 	UPROPERTY(EditDefaultsOnly)
 	UStaticMeshComponent* StaticMesh;
