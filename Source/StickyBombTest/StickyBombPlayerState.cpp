@@ -22,3 +22,8 @@ bool AStickyBombPlayerState::HasAmmo()
 {
 	return AmmoCurrent > 0;
 }
+
+int AStickyBombPlayerState::GetAmmoCurrent()
+{
+	return AmmoCurrent;
+}

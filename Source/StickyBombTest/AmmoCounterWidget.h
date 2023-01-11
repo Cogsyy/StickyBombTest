@@ -21,6 +21,8 @@ class STICKYBOMBTEST_API UAmmoCounterWidget : public UUserWidget
 public:
 	virtual void NativeConstruct() override;
 
+	virtual void NativeOnInitialized() override;
+
 	UFUNCTION()
 	void OnAmmoCountChanged(int NewAmmo);
 

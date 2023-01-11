@@ -23,6 +23,8 @@ public:
 
 	bool HasAmmo();
 
+	int GetAmmoCurrent();
+
 	UPROPERTY(BlueprintAssignable)
 	FOnAmmoCountChanged OnAmmoCountChanged;
 

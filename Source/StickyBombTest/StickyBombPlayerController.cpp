@@ -10,15 +10,23 @@ AStickyBombPlayerController::AStickyBombPlayerController()
 
 }
 
+void AStickyBombPlayerController::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	if (HasAuthority() == false)//Server can't create widget
+	{
+		UE_LOG(LogTemp, Log, TEXT("CreateWidget"));
+		UUserWidget* HudWidget = CreateWidget(this, PlayerHudWidget, "PlayerHudWidget");
+		HudWidget->AddToViewport();
+	}
+}
+
 void AStickyBombPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (HasAuthority() == false)//Server can't create widget
-	{
-		UUserWidget* HudWidget = CreateWidget(this, PlayerHudWidget, "PlayerHudWidget");
-		HudWidget->AddToViewport();
-	}
+	
 }
 
 void AStickyBombPlayerController::SetInteractionWidgetEnabled(bool Enabled)
@@ -38,11 +46,3 @@ void AStickyBombPlayerController::SetInteractionWidgetEnabled(bool Enabled)
 		InteractionWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
-
-/*void AStickyBombPlayerController::RemoveInteractionWidget()
-{
-	if (InteractionWidget)
-	{
-		InteractionWidget->SetVisibility(ESlateVisibility::Hidden);
-	}
-}*/

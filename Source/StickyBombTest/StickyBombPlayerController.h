@@ -20,9 +20,10 @@ public:
 	AStickyBombPlayerController();
 	
 	void SetInteractionWidgetEnabled(bool Enabled);
-	//void RemoveInteractionWidget();
 
 protected:
+	virtual void OnRep_PlayerState() override;
+	
 	virtual void BeginPlay() override;
 	
 	UPROPERTY(EditAnywhere)
