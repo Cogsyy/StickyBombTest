@@ -21,6 +21,8 @@ public:
 
 	void InitializePostSpawn(FVector ViewpointLocation, FRotator ViewpointRotation);
 
+	void InitializeAsClusterGrenade();
+
 	/** Returns CollisionComp subobject **/
 	USphereComponent* GetCollisionComp() const { return CollisionComp; }
 	/** Returns ProjectileMovement subobject **/
@@ -39,10 +41,20 @@ protected:
 
 	void FlashTick(bool IsAttached);
 
+	bool LineTraceSingleByObjectWhereAiming(FHitResult& OutHit, const FVector ViewpointLocation, const FRotator ViewpointRotation);
+
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
-	bool LineTraceSingleByObjectWhereAiming(FHitResult& OutHit, const FVector ViewpointLocation, const FRotator ViewpointRotation);
+	void InitiateExplosion();
+
+	void SpawnClusterGrenades(TArray<FVector> RandomDirections);
+	
+	/*UFUNCTION(Server, Reliable)
+	void Server_SpawnClusterGrenades(TArray<FVector> RandomDirections);*/
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_Explode();
 	
 	UPROPERTY(EditDefaultsOnly)
 	UStaticMeshComponent* StaticMesh;
@@ -74,6 +86,15 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	float WarningTimeBeforeExplosionInSeconds = 3;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Cluster grenade")
+	float ClusterGrenadeChance = 0.5f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Cluster grenade")
+	int MinimumGrenades = 3;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Cluster grenade")
+	int MaximumGrenades = 6;
+	
 	float fDeltaTime = 0;
 	
 	float ExplodeTimer = 0;
@@ -85,4 +106,6 @@ protected:
 	bool IsFlashing = false;
 
 	bool IsExploding = false;
+
+	bool IsClusterGrenade = false;
 };

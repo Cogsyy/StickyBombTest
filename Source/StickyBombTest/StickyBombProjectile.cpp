@@ -70,6 +70,13 @@ void AStickyBombProjectile::InitializePostSpawn(FVector ViewpointLocation, FRota
 	}
 }
 
+void AStickyBombProjectile::InitializeAsClusterGrenade()
+{
+	IsClusterGrenade = true;//Prevents cluster grenades from spawning more cluster grenades
+
+	ProjectileMovement->InitialSpeed = 400;
+}
+
 //Encapsulation of line trace code to simplify my own, as it takes several lines for a simple line trace
 bool AStickyBombProjectile::LineTraceSingleByObjectWhereAiming(FHitResult& OutHit, const FVector ViewpointLocation, const FRotator ViewpointRotation)
 {
@@ -184,11 +191,57 @@ void AStickyBombProjectile::Tick(float DeltaTime)
 	if (ShouldExplode(AttachedToActor))
 	{
 		IsExploding = true;
-		ExplosionEffectComp->Activate();
-		StaticMesh->SetVisibility(false);
 
-		RadialForceComp->FireImpulse();
-		
-		SetLifeSpan(1.0f);
+		if (HasAuthority())
+		{
+			InitiateExplosion();
+		}
 	}
+}
+
+//Must have authority to call this
+void AStickyBombProjectile::InitiateExplosion()
+{
+	Multicast_Explode();
+	
+	bool ShouldSpawnClusterGrenades = !IsClusterGrenade && FMath::RandRange(0.0f, 1.0f) <= ClusterGrenadeChance;
+
+	if (ShouldSpawnClusterGrenades)
+	{
+		TArray<FVector> RandomDirections;
+		
+		int GrenadeCount = FMath::RandRange(MinimumGrenades, MaximumGrenades);
+		for (int i = 0; i < GrenadeCount; i++)
+		{
+			FVector Direction = FMath::VRand();
+			RandomDirections.Add(Direction);
+		}
+
+		SpawnClusterGrenades(RandomDirections);
+	}
+}
+
+void AStickyBombProjectile::SpawnClusterGrenades(TArray<FVector> RandomDirections)
+{
+	for (int i = 0; i < RandomDirections.Num(); i++)
+	{
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = GetOwner();
+		SpawnParams.Instigator = Cast<APawn>(GetOwner());
+	
+		FVector SpawnLocation = GetActorLocation();
+		FRotator SpawnRotation = RandomDirections[i].Rotation();
+		AStickyBombProjectile* Projectile = GetWorld()->SpawnActor<AStickyBombProjectile>(GetClass(), SpawnLocation, SpawnRotation, SpawnParams);
+		Projectile->InitializeAsClusterGrenade();
+	}
+}
+
+void AStickyBombProjectile::Multicast_Explode_Implementation()//Mostly cosmetic
+{
+	ExplosionEffectComp->Activate();
+	StaticMesh->SetVisibility(false);
+
+	RadialForceComp->FireImpulse();
+		
+	SetLifeSpan(1.0f);
 }
