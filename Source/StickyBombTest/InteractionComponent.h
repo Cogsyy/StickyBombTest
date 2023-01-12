@@ -19,23 +19,33 @@ public:
 	
 	void TryInteract();
 
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
 protected:
 	virtual void BeginPlay() override;
+
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UPROPERTY(EditAnywhere)
 	float MaxInteractionDistance = 400;//Arbitrary good default amount
 	
 private:
-	void TryFindPawnWithInteractable();
-
-	void SetAbleToInteract(AActor* HitActor, APawn* HitPawnWithInteractable);
+	void SetAbleToInteract(AActor* HitActor, APawn* InstigatorPawnWithInteractableComp);
 
 	void SetInteractionWidgetEnabled(bool Enabled);
+
+	UFUNCTION(Server, Reliable)
+	void Server_TryFindActorWithInteractable(FVector SweepStart, FRotator ViewPointRotation);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_TryFindActorWithInteractable(FVector SweepStart, FRotator ViewPointRotation);
+
+	UFUNCTION(Server, Reliable)
+	void Server_Interact(AActor* HitActor, APawn* InstigatorWithInteractableComp);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_Interact(AActor* HitActor, APawn* InstigatorWithInteractableComp);
 
 	AStickyBombPlayerController* PlayerController;
 	
 	AActor* CachedHitActor;
-	APawn* CachedPawnWithIInteractable;
+	APawn* CachedInstigatorWithInteractableComp;
 };

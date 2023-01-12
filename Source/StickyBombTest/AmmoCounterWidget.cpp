@@ -18,7 +18,7 @@ void UAmmoCounterWidget::NativeOnInitialized()
 
 	APlayerState* PlayerState = GetOwningPlayer()->GetPlayerState<APlayerState>();
 	AStickyBombPlayerState* StickyBombPlayerState = Cast<AStickyBombPlayerState>(PlayerState);
-	if (ensure(StickyBombPlayerState))
+	if (StickyBombPlayerState)
 	{
 		StickyBombPlayerState->OnAmmoCountChanged.AddDynamic(this, &UAmmoCounterWidget::OnAmmoCountChanged);
 

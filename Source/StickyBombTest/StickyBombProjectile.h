@@ -21,11 +21,6 @@ public:
 
 	void InitializePostSpawn(FVector ViewpointLocation, FRotator ViewpointRotation);
 
-	virtual void Tick(float DeltaTime) override;
-
-	UFUNCTION()
-	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-
 	/** Returns CollisionComp subobject **/
 	USphereComponent* GetCollisionComp() const { return CollisionComp; }
 	/** Returns ProjectileMovement subobject **/
@@ -33,6 +28,8 @@ public:
 
 protected:
 	virtual void BeginPlay();
+
+	virtual void Tick(float DeltaTime) override;
 	
 	virtual void OnInteract(APawn* InstigatorPawn) override;
 	
@@ -42,8 +39,8 @@ protected:
 
 	void FlashTick(bool IsAttached);
 
-	UFUNCTION(Server, Reliable)
-	void Server_DestroySelf();
+	UFUNCTION()
+	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 	
 	UPROPERTY(EditDefaultsOnly)
 	UStaticMeshComponent* StaticMesh;

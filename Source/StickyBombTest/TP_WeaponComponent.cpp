@@ -42,7 +42,7 @@ void UTP_WeaponComponent::Fire()
 	
 	if (GetOwner()->HasAuthority())
 	{
-		UE_LOG(LogTemp, Log, TEXT("I am the server. Spawning a projectile"));
+		//UE_LOG(LogTemp, Log, TEXT("I am the server. Spawning a projectile"));
 		SpawnAndFireProjectile();
 
 		if (GetNetMode() != NM_DedicatedServer)
@@ -53,7 +53,7 @@ void UTP_WeaponComponent::Fire()
 	else
 	{
 		//We're a client, tell the server that i want to shoot
-		UE_LOG(LogTemp, Log, TEXT("I am a client. Asking the server to invoke SpawnAndFireProjectile"));
+		//UE_LOG(LogTemp, Log, TEXT("I am a client. Asking the server to invoke SpawnAndFireProjectile"));
 		Server_Fire();
 
 		PlayFireSoundAndAnimation();
@@ -62,7 +62,7 @@ void UTP_WeaponComponent::Fire()
 
 void UTP_WeaponComponent::Server_Fire_Implementation()
 {
-	UE_LOG(LogTemp, Log, TEXT("I am the server. A client has asked me to run SpawnAndFireProjectile. Running the SpawnAndFireProjectile now."));
+	//UE_LOG(LogTemp, Log, TEXT("I am the server. A client has asked me to run SpawnAndFireProjectile. Running the SpawnAndFireProjectile now."));
 
 	SpawnAndFireProjectile();
 }

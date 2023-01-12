@@ -18,7 +18,7 @@ void APickupableActor::Interact_Implementation(APawn* InstigatorPawn)
 
 void APickupableActor::OnInteract(APawn* InstigatorPawn)
 {
-	UE_LOG(LogTemp, Log, TEXT("Interact!"));
+	
 }
 
 

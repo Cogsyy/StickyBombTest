@@ -26,19 +26,30 @@ void UInteractionComponent::BeginPlay()
 	}
 }
 
-void UInteractionComponent::TryFindPawnWithInteractable()
+void UInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
-	CachedPawnWithIInteractable = nullptr;//Assume null each time
-	CachedHitActor = nullptr;
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
-	TArray<FHitResult> Hits;
-	float Radius = 30.f;
-	FCollisionShape Shape;
-	Shape.SetSphere(30.0f);
+	if (PlayerController)//don't bother looking for interactables if you don't have a controller. If you don't have one you are probably replicated and wouldn't have a HUD
+	{
+		FVector ViewpointStart;
+		FRotator ViewPointRotation;
+		PlayerController->GetPlayerViewPoint(ViewpointStart, ViewPointRotation);
+		Server_TryFindActorWithInteractable(ViewpointStart, ViewPointRotation);//Inform the server to call TryFindActorWithInteractable as aa multicast
+	}
+}
 
-	FVector SweepStart;
-	FRotator ViewPointRotation;
-	PlayerController->GetPlayerViewPoint(SweepStart, ViewPointRotation);
+void UInteractionComponent::Server_TryFindActorWithInteractable_Implementation(FVector SweepStart, FRotator ViewPointRotation)
+{
+	Multicast_TryFindActorWithInteractable(SweepStart, ViewPointRotation);
+}
+
+//Summary: Line trace from the actor's viewpoint (See parameters) on both clients, and if an actor is hit and implements IInteractable, cache a reference to the hit actor and instigator to
+//show an interaction HUD and for calling OnInteract()
+void UInteractionComponent::Multicast_TryFindActorWithInteractable_Implementation(FVector SweepStart, FRotator ViewPointRotation)
+{
+	CachedInstigatorWithInteractableComp = nullptr;//Assume null each time
+	CachedHitActor = nullptr;
 
 	FVector SweepEnd;
 	SweepEnd = SweepStart + (ViewPointRotation.Vector() * 1000);
@@ -49,8 +60,13 @@ void UInteractionComponent::TryFindPawnWithInteractable()
 	FCollisionQueryParams CollisionParams;
 	AActor* MyOwner = GetOwner();
 	CollisionParams.AddIgnoredActor(MyOwner);
+
+	TArray<FHitResult> Hits;
+	float Radius = 30.f;
+	FCollisionShape Shape;
+	Shape.SetSphere(Radius);
 	
-	bool bBlockingHit = GetWorld()->SweepMultiByObjectType(Hits, SweepStart, SweepEnd, FQuat::Identity, ObjectQueryParams, Shape, CollisionParams);
+	GetWorld()->SweepMultiByObjectType(Hits, SweepStart, SweepEnd, FQuat::Identity, ObjectQueryParams, Shape, CollisionParams);
 	
 	for (FHitResult Hit : Hits)
 	{
@@ -74,35 +90,46 @@ void UInteractionComponent::TryFindPawnWithInteractable()
 	}
 }
 
-void UInteractionComponent::SetAbleToInteract(AActor* HitActor, APawn* HitPawnWithInteractable)
+//Summary: Cache the hit actor and the instigator and set the "Press e to interact" widget active. The cached actors will be used to call OnInteract on later if the player pressed e
+void UInteractionComponent::SetAbleToInteract(AActor* HitActor, APawn* InstigatorPawnWithInteractableComp)
 {
 	CachedHitActor = HitActor;
-	CachedPawnWithIInteractable = HitPawnWithInteractable;
-
+	CachedInstigatorWithInteractableComp = InstigatorPawnWithInteractableComp;
+	
 	SetInteractionWidgetEnabled(true);
 }
 
 void UInteractionComponent::SetInteractionWidgetEnabled(bool Enabled)
 {
-	PlayerController->SetInteractionWidgetEnabled(Enabled);
+	if (PlayerController)//Don't display UI if you don't have a player controller, you are likely a replicated pawn without a hud
+	{
+		PlayerController->SetInteractionWidgetEnabled(Enabled);
+	}
 }
 
 void UInteractionComponent::TryInteract()
 {
-	if (CachedPawnWithIInteractable != nullptr && CachedHitActor != nullptr)
+	if (CachedInstigatorWithInteractableComp != nullptr && CachedHitActor != nullptr)
 	{
-		IIInteractable::Execute_Interact(CachedHitActor, CachedPawnWithIInteractable);
+		if (CachedInstigatorWithInteractableComp->HasAuthority())
+		{
+			Multicast_Interact(CachedHitActor, CachedInstigatorWithInteractableComp);//Cause each client to call OnInteract() on the actor that implements IInteractable
+		}
+		else
+		{
+			Server_Interact(CachedHitActor, CachedInstigatorWithInteractableComp);//Ask the server to call a multicast that causes each client to call OnInteract() on the actor that implements IInteractable
+		}
 	}
 }
 
-void UInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UInteractionComponent::Server_Interact_Implementation(AActor* HitActor, APawn* InstigatorWithInteractableComp)
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	Multicast_Interact(CachedHitActor, CachedInstigatorWithInteractableComp);
+}
 
-	if (PlayerController)//don't bother looking for interactables if you don't have a controller. If you don't have one you are probably replicated and wouldn't have a HUD
-	{
-		TryFindPawnWithInteractable();
-	}
+void UInteractionComponent::Multicast_Interact_Implementation(AActor* HitActor, APawn* InstigatorWithInteractableComp)
+{
+	IIInteractable::Execute_Interact(HitActor, InstigatorWithInteractableComp);
 }
 
 

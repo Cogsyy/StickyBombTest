@@ -48,15 +48,6 @@ AStickyBombProjectile::AStickyBombProjectile()
 	RadialForceComp->SetupAttachment(CollisionComp);
 }
 
-/*void AStickyBombProjectile::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	FDoRepLifetimeParams SharedParams;
-	SharedParams.bIsPushBased = true;
-
-	DOREPLIFETIME_WITH_PARAMS_FAST(AStickyBombProjectile, bReplicatedProp, SharedParams);
-}*/
-
 void AStickyBombProjectile::InitializePostSpawn(FVector ViewpointLocation, FRotator ViewpointRotation)
 {
 	FHitResult Hit;
@@ -94,8 +85,8 @@ bool AStickyBombProjectile::LineTraceSingleByObjectWhereAiming(FHitResult& OutHi
 
 	if (BlockingHit)
 	{
-		FColor LineColor = FColor::Green;
-		DrawDebugLine(GetWorld(), ViewpointLocation, OutHit.ImpactPoint, LineColor, true, 5);
+		//FColor LineColor = FColor::Green;
+		//DrawDebugLine(GetWorld(), ViewpointLocation, OutHit.ImpactPoint, LineColor, true, 5);
 	}
 
 	return BlockingHit;
@@ -130,7 +121,7 @@ void AStickyBombProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherAct
 	}
 }
 
-void AStickyBombProjectile::OnInteract(APawn* InstigatorPawn)
+void AStickyBombProjectile::OnInteract(APawn* InstigatorPawn)//Will be called on all clients in multiplayer
 {
 	Super::OnInteract(InstigatorPawn);
 
@@ -143,15 +134,6 @@ void AStickyBombProjectile::OnInteract(APawn* InstigatorPawn)
 	{
 		Destroy();
 	}
-	else
-	{
-		Server_DestroySelf();
-	}
-}
-
-void AStickyBombProjectile::Server_DestroySelf_Implementation()
-{
-	Destroy();
 }
 
 bool AStickyBombProjectile::ShouldFlash(bool IsAttached)
