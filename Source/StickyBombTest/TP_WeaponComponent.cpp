@@ -124,7 +124,6 @@ void UTP_WeaponComponent::AttachWeapon(AStickyBombTestCharacter* TargetCharacter
 		return;
 	}
 	
-	//APlayerController* MyPlayerController = UGameplayStatics::GetPlayerController(this, 0);
 	GetOwner()->SetOwner(TargetCharacter);
 	
 	// Attach the weapon to the First Person Character

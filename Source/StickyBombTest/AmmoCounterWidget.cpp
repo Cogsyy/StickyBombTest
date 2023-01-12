@@ -5,13 +5,6 @@
 
 #include "StickyBombPlayerState.h"
 
-void UAmmoCounterWidget::NativeConstruct()
-{
-	Super::NativeConstruct();
-
-	
-}
-
 void UAmmoCounterWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();

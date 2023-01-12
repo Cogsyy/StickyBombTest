@@ -24,10 +24,6 @@ protected:
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	UPROPERTY(EditAnywhere)
-	float MaxInteractionDistance = 400;//Arbitrary good default amount
-	
-private:
 	void SetAbleToInteract(AActor* HitActor, APawn* InstigatorPawnWithInteractableComp);
 
 	void SetInteractionWidgetEnabled(bool Enabled);
@@ -43,6 +39,9 @@ private:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_Interact(AActor* HitActor, APawn* InstigatorWithInteractableComp);
+	
+	UPROPERTY(EditAnywhere)
+	float MaxInteractionDistance = 400;//Arbitrary good default amount
 
 	AStickyBombPlayerController* PlayerController;
 	

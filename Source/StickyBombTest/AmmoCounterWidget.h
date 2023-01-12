@@ -19,8 +19,6 @@ class STICKYBOMBTEST_API UAmmoCounterWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	virtual void NativeConstruct() override;
-
 	virtual void NativeOnInitialized() override;
 
 	UFUNCTION()

@@ -28,7 +28,7 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnAmmoCountChanged OnAmmoCountChanged;
 
-private:
+protected:
 	UPROPERTY(EditAnywhere)
 	int AmmoStarting = 3;
 	

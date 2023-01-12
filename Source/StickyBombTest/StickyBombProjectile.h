@@ -41,6 +41,8 @@ protected:
 
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+	bool LineTraceSingleByObjectWhereAiming(FHitResult& OutHit, const FVector ViewpointLocation, const FRotator ViewpointRotation);
 	
 	UPROPERTY(EditDefaultsOnly)
 	UStaticMeshComponent* StaticMesh;
@@ -57,20 +59,19 @@ protected:
 	UPROPERTY(EditAnywhere)
 	URadialForceComponent* RadialForceComp;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 	FName MaterialSpeedParam;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 	FName MaterialDeltaTimeParam;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 	float TimeUntilAttachedExplosion = 4;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 	float TimeUntilUnattachedExplosion = 8;
-
-	//UPROPERTY(EditAnywhere, Replicated)
-	UPROPERTY(EditAnywhere)
+	
+	UPROPERTY(EditDefaultsOnly)
 	float WarningTimeBeforeExplosionInSeconds = 3;
 
 	float fDeltaTime = 0;
@@ -84,7 +85,4 @@ protected:
 	bool IsFlashing = false;
 
 	bool IsExploding = false;
-
-private:
-	bool LineTraceSingleByObjectWhereAiming(FHitResult& OutHit, const FVector ViewpointLocation, const FRotator ViewpointRotation);
 };

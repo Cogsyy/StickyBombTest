@@ -17,8 +17,6 @@ class STICKYBOMBTEST_API AStickyBombPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
-	AStickyBombPlayerController();
-	
 	void SetInteractionWidgetEnabled(bool Enabled);
 
 protected:

@@ -5,11 +5,6 @@
 
 #include "Blueprint/UserWidget.h"
 
-AStickyBombPlayerController::AStickyBombPlayerController()
-{
-
-}
-
 void AStickyBombPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
