@@ -59,7 +59,8 @@ protected:
 
 	void SpawnAndFireProjectile() const;
 
-	void PlayFireSoundAndAnimation();
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_PlayFireSoundAndAnimation();
 
 private:
 	/** The Character holding this weapon*/

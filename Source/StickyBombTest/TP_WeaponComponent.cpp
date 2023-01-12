@@ -44,27 +44,21 @@ void UTP_WeaponComponent::Fire()
 	{
 		//UE_LOG(LogTemp, Log, TEXT("I am the server. Spawning a projectile"));
 		SpawnAndFireProjectile();
-
-		if (GetNetMode() != NM_DedicatedServer)
-		{
-			PlayFireSoundAndAnimation();
-		}
+		Multicast_PlayFireSoundAndAnimation();
 	}
 	else
 	{
 		//We're a client, tell the server that i want to shoot
 		//UE_LOG(LogTemp, Log, TEXT("I am a client. Asking the server to invoke SpawnAndFireProjectile"));
 		Server_Fire();
-
-		PlayFireSoundAndAnimation();
 	}
 }
 
 void UTP_WeaponComponent::Server_Fire_Implementation()
 {
 	//UE_LOG(LogTemp, Log, TEXT("I am the server. A client has asked me to run SpawnAndFireProjectile. Running the SpawnAndFireProjectile now."));
-
 	SpawnAndFireProjectile();
+	Multicast_PlayFireSoundAndAnimation();
 }
 
 void UTP_WeaponComponent::SpawnAndFireProjectile() const
@@ -100,12 +94,13 @@ void UTP_WeaponComponent::SpawnAndFireProjectile() const
 	}
 }
 
-void UTP_WeaponComponent::PlayFireSoundAndAnimation()
+void UTP_WeaponComponent::Multicast_PlayFireSoundAndAnimation_Implementation()
 {
 	// Try and play the sound if specified
 	if (FireSound != nullptr)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, FireSound, Character->GetActorLocation());
+		UE_LOG(LogTemp, Log, TEXT("Fire sound"));
 	}
 	
 	// Try and play a firing animation if specified
@@ -117,6 +112,7 @@ void UTP_WeaponComponent::PlayFireSoundAndAnimation()
 		{
 			AnimInstance->Montage_Play(FireAnimation, 1.f);
 		}
+		UE_LOG(LogTemp, Log, TEXT("Fire anim"));
 	}
 }
 
