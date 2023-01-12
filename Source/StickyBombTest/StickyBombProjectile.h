@@ -101,6 +101,8 @@ protected:
 
 	bool HitSomething = false;
 
+	bool HitCharacter = false;
+
 	bool AttachedToActor = false;
 
 	bool IsFlashing = false;

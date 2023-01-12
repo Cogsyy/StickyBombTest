@@ -109,22 +109,22 @@ void AStickyBombProjectile::BeginPlay()
 
 void AStickyBombProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (HitSomething)//Only evaluate this on first hit
-	{
-		return;
-	}
-
 	HitSomething = true;
 
 	ACharacter* Character = Cast<ACharacter>(OtherActor);
 	if (Character)//Hit a character
 	{
-		ProjectileMovement->StopMovementImmediately();
-		StaticMesh->SetSimulatePhysics(false);
+		bool CanAttach = !AttachedToActor && !ShouldFlash(AttachedToActor);//If you aren't already attached to an actor, and you haven't started flashing yet
+
+		if (CanAttach)
+		{
+			ProjectileMovement->StopMovementImmediately();
+			StaticMesh->SetSimulatePhysics(false);
 		
-		AttachToActor(Character, FAttachmentTransformRules::KeepRelativeTransform);
-		SetActorLocation(Hit.ImpactPoint);
-		AttachedToActor = true;
+			AttachToActor(Character, FAttachmentTransformRules::KeepRelativeTransform);
+			SetActorLocation(Hit.ImpactPoint);
+			AttachedToActor = true;	
+		}
 	}
 }
 
